@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.review.model.Review;
 import ru.practicum.shareit.user.User;
@@ -9,6 +10,7 @@ import ru.practicum.shareit.user.User;
 import java.util.List;
 
 @Data
+@Builder
 public class Item {
     private Long id;
     @NotBlank

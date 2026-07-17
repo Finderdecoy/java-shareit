@@ -45,18 +45,18 @@ public class UserService {
     }
 
     private void checkEmail(User user) {
-        if ( userRepository.getAllUsers().stream().anyMatch(u -> Objects.equals(u.getEmail(), user.getEmail())))
-         throw new ConfilictData("Этот eмейл уже используется");
+        if (userRepository.getAllUsers().stream().anyMatch(u -> Objects.equals(u.getEmail(), user.getEmail())))
+            throw new ConfilictData("Этот eмейл уже используется");
     }
 
     public void deleteUser(Long id) {
         userRepository.deleteUser(id);
     }
 
-    public UserDto getUser(Long id){
-      return userRepository.getUser(id)
-              .map(MapToUserDto::mapToUserDto)
-              .orElseThrow(() ->new NotFoundException("Пользователь не найден"));
+    public UserDto getUser(Long id) {
+        return userRepository.getUser(id)
+                .map(MapToUserDto::mapToUserDto)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
 }

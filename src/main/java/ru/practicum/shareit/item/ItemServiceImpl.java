@@ -63,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<ItemDto> searchAvailableItems(String searchQuery) {
         log.info("Запрос вещи по названи или описани : {}", searchQuery);
-        if(searchQuery.isBlank()) return List.of();
+        if (searchQuery.isBlank()) return List.of();
         return itemRepo.searchAvailableItems(searchQuery).stream()
                 .map(MapToItemDto::mapToItemDto)
                 .toList();

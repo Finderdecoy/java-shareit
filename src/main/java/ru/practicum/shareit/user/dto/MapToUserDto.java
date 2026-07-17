@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.dto;
 import ru.practicum.shareit.user.User;
 
 public class MapToUserDto {
-    public static UserDto mapToUserDto(User user){
+    public static UserDto mapToUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setName(user.getName());

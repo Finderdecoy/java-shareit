@@ -55,4 +55,8 @@ public class ItemMemRepo implements ItemRepo {
         return (long) items.size() + 1;
     }
 
+    public void cleanUpForTest() {
+        items.clear();
+    }
+
 }

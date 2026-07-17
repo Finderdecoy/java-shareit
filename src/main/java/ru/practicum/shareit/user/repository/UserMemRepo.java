@@ -11,13 +11,13 @@ import java.util.Optional;
 
 @Component
 public class UserMemRepo implements UserRepository {
-    private final Map<Long,User> users = new HashMap();
+    private final Map<Long, User> users = new HashMap();
 
     @Override
     public User create(User user) {
         Long id = generateId();
         user.setId(id);
-        users.put(id,user);
+        users.put(id, user);
         return user;
     }
 
@@ -28,8 +28,8 @@ public class UserMemRepo implements UserRepository {
 
     @Override
     public User editUser(User editingUser) {
-         users.put(editingUser.getId(),editingUser);
-         return users.get(editingUser.getId());
+        users.put(editingUser.getId(), editingUser);
+        return users.get(editingUser.getId());
     }
 
     @Override
@@ -45,5 +45,9 @@ public class UserMemRepo implements UserRepository {
 
     private Long generateId() {
         return (long) users.size() + 1;
+    }
+
+    public void cleanUpForTest() {
+        users.clear();
     }
 }
