@@ -119,7 +119,7 @@ class TestUsers extends ShareItTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editUser)))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$['Повторение данных:']").value("Этот eмейл уже используется"));
+                .andExpect(jsonPath("$.error").value("Этот eмейл уже используется"));
     }
 
     @Test

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConfilictData;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.MapToUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMap;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
@@ -19,12 +19,12 @@ public class UserService {
 
     public UserDto createUser(User user) {
         checkEmail(user);
-        return MapToUserDto.mapToUserDto(userRepository.create(user));
+        return UserMap.map(userRepository.create(user));
     }
 
     public List<UserDto> getUsers() {
         return userRepository.getAllUsers().stream()
-                .map(MapToUserDto::mapToUserDto)
+                .map(UserMap::map)
                 .toList();
     }
 
@@ -39,7 +39,7 @@ public class UserService {
             if (user.getPassword() != null && !user.getPassword().isBlank())
                 editingUser.setPassword(user.getPassword());
             userRepository.editUser(editingUser);
-            return MapToUserDto.mapToUserDto(editingUser);
+            return UserMap.map(editingUser);
         }
         throw new NotFoundException("Пользователь не найден");
     }
@@ -55,7 +55,7 @@ public class UserService {
 
     public UserDto getUser(Long id) {
         return userRepository.getUser(id)
-                .map(MapToUserDto::mapToUserDto)
+                .map(UserMap::map)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
