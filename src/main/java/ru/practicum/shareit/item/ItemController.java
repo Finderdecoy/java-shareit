@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoOnCreate;
 import ru.practicum.shareit.item.dto.ItemMap;
 import ru.practicum.shareit.item.model.Item;
 
@@ -19,8 +20,8 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
-                              @Validated @RequestBody ItemDto itemDto) {
-        Item item = ItemMap.map(itemDto);
+                              @Validated @RequestBody ItemDtoOnCreate itemDto) {
+        Item item = ItemMap.mapToItemOnCreate(itemDto);
         return itemService.createItem(idUser, item);
     }
 
@@ -28,7 +29,7 @@ public class ItemController {
     public ItemDto editItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
                             @PathVariable Long id,
                             @RequestBody ItemDto itemDto) {
-        Item item = ItemMap.map(itemDto);
+        Item item = ItemMap.mapToItem(itemDto);
         return itemService.editItem(idUser, id, item);
     }
 

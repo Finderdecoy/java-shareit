@@ -24,21 +24,21 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto createItem(Long idUser, Item item) {
         User owner = checkUser(idUser);
         log.info("Пользователь : {} .Добовляет вешь {}", owner, item);
-        return ItemMap.map(itemRepo.createItem(owner, item));
+        return ItemMap.mapToDto(itemRepo.createItem(owner, item));
     }
 
     @Override
     public ItemDto getItem(Long idItem) {
         log.info("Запрос вещи по id {}", idItem);
         return itemRepo.getItemById(idItem)
-                .map(ItemMap::map)
+                .map(ItemMap::mapToDto)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
     }
 
     @Override
     public Collection<ItemDto> getItemList(Long idUser) {
         return itemRepo.getAllItems(idUser).stream()
-                .map(ItemMap::map)
+                .map(ItemMap::mapToDto)
                 .toList();
     }
 
@@ -54,17 +54,17 @@ public class ItemServiceImpl implements ItemService {
                 editingItem.setDescription(item.getDescription());
             if (item.getName() != null && !item.getName().isBlank()) editingItem.setName(item.getName());
 
-            return ItemMap.map(itemRepo.editItem(editingItem));
+            return ItemMap.mapToDto(itemRepo.editItem(editingItem));
         }
         throw new NotFoundException("Вы не являетесь владельцем данной вещи");
     }
 
     @Override
     public Collection<ItemDto> searchAvailableItems(String searchQuery) {
-        log.info("Запрос вещи по названи или описани : {}", searchQuery);
+        log.info("Запрос вещи по названию или описанию : {}", searchQuery);
 
         return itemRepo.searchAvailableItems(searchQuery).stream()
-                .map(ItemMap::map)
+                .map(ItemMap::mapToDto)
                 .toList();
     }
 
