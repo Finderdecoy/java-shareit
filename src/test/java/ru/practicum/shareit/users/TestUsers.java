@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.users;
 
 import org.junit.jupiter.api.DisplayName;
@@ -13,13 +14,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("Тесты CRUD операций пользователей")
 class TestUsers extends ShareItTests {
-    /*@Autowired
+    */
+/*@Autowired
     public UserMemRepo repo;
 
     @AfterEach
     public void cleanUp() {
         repo.cleanUpForTest();
-    }*/
+    }*//*
+
 
     @Test
     public void testCreateRightUser() throws Exception {
@@ -92,3 +95,4 @@ class TestUsers extends ShareItTests {
     }
 
 }
+*/

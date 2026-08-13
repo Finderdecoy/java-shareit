@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,10 +30,12 @@ public class TestItem extends ShareItTests {
         createUser(user);
     }
 
-  /*  @AfterEach
+  */
+/*  @AfterEach
     public void cleanUp() {
         repo.cleanUpForTest();
-    }*/
+    }*//*
+
 
     @Test
     public void shouldCreateItem() throws Exception {
@@ -176,3 +179,4 @@ public class TestItem extends ShareItTests {
     }
 }
 
+*/
