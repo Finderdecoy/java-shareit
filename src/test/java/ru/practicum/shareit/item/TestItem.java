@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.practicum.shareit.ShareItTests;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemMemRepo;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -22,8 +21,6 @@ public class TestItem extends ShareItTests {
     public static final String ITEMS = "/items";
     public static final String USER_HEADER = "X-Sharer-User-Id";
     public static final String SEARCH = "/items/search";
-    @Autowired
-    public ItemMemRepo repo;
 
     @BeforeEach
     public void beforeEach() throws Exception {
@@ -34,10 +31,10 @@ public class TestItem extends ShareItTests {
         createUser(user);
     }
 
-    @AfterEach
+  /*  @AfterEach
     public void cleanUp() {
         repo.cleanUpForTest();
-    }
+    }*/
 
     @Test
     public void shouldCreateItem() throws Exception {

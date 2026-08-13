@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMap;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
 
@@ -22,7 +23,7 @@ public class UserController {
 
     @PostMapping
     public UserDto createUser(@Validated @RequestBody UserDto userDto) {
-        User user = UserMap.map(userDto);
+        User user = UserMapper.mapToUser(userDto);
         return userService.createUser(user);
     }
 
@@ -30,7 +31,7 @@ public class UserController {
     public UserDto editUser(
             @PathVariable Long id,
             @RequestBody UserDto userDto) {
-        User user = UserMap.map(userDto);
+        User user = UserMapper.mapToUser(userDto);
         return userService.editUser(id, user);
     }
 
@@ -41,7 +42,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable Long id) {
-        return userService.getUser(id);
+        return UserMapper.mapToUserDto(userService.getUser(id));
     }
 
 }

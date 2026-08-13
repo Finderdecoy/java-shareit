@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.practicum.shareit.ShareItTests;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserMemRepo;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -16,13 +16,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("Тесты CRUD операций пользователей")
 class TestUsers extends ShareItTests {
-    @Autowired
+    /*@Autowired
     public UserMemRepo repo;
 
     @AfterEach
     public void cleanUp() {
         repo.cleanUpForTest();
-    }
+    }*/
 
     @Test
     public void testCreateRightUser() throws Exception {
