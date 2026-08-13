@@ -46,11 +46,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDtoWithDate getItem(Long idItem) {
         log.info("Запрос вещи по id {}", idItem);
+        Item item = itemRepo.findById(idItem).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
         List<CommentOutDto> comments = commentRepo.findByItemId(idItem).stream().map(CommentMapper::mapToOutDto).toList();
-        ItemDtoWithDate dtoOut = itemRepo.findItemWithDates(idItem).stream().findAny()
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-        dtoOut.setComments(comments);
-        return dtoOut;
+        if (item.getOwner().getId().equals(idItem))
+            return itemRepo.findItemWithDates(idItem).toBuilder().comments(comments).build();
+        return ItemMap.mapToDtoWithDate(item).toBuilder().comments(comments).build();
     }
 
     @Override

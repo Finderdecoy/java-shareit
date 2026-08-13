@@ -24,16 +24,16 @@ public interface ItemRepo extends JpaRepository<Item, Long> {
             "FROM Item i " +
             "LEFT JOIN i.bookings b " +
             "WHERE i.owner.id = ?1 " +
-            "GROUP BY i")
+            "GROUP BY i.id, i.name, i.description, i.available")
     List<ItemDtoWithDate> findAllWithBookingDates(Long ownerId);
 
     @Query("SELECT new ru.practicum.shareit.item.itemDto.ItemDtoWithDate(i.id, i.name, i.description, i.available, " +
-            "MAX(CASE WHEN b.bookingStartDate <= CURRENT_TIMESTAMP THEN b.bookingStartDate ELSE NULL END), " +
+            "MAX(CASE WHEN b.bookingStartDate < CURRENT_TIMESTAMP THEN b.bookingStartDate ELSE NULL END), " +
             "MIN(CASE WHEN b.bookingStartDate > CURRENT_TIMESTAMP THEN b.bookingStartDate ELSE NULL END), " +
             "NULL) " +
             "FROM Item i " +
             "LEFT JOIN i.bookings b " +
             "WHERE i.id = ?1 " +
-            "GROUP BY i")
-    List<ItemDtoWithDate> findItemWithDates(Long itemId);
+            "GROUP BY i.id, i.name, i.description, i.available")
+    ItemDtoWithDate findItemWithDates(Long itemId);
 }

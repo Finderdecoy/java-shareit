@@ -35,4 +35,5 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
     //запрос на проверку арендатора для добовления коментария
 
     List<Booking> findByItemBookingIdAndBookerIdAndStatusAndBookingEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime now);
+
 }

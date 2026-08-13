@@ -2,10 +2,10 @@ package ru.practicum.shareit.item.mapper;
 
 import ru.practicum.shareit.item.itemDto.ItemDto;
 import ru.practicum.shareit.item.itemDto.ItemDtoOnCreate;
-import ru.practicum.shareit.item.itemDto.ItemDtoWithComment;
+import ru.practicum.shareit.item.itemDto.ItemDtoWithDate;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class ItemMap {
     public static ItemDto mapToDto(Item item) {
@@ -15,16 +15,6 @@ public class ItemMap {
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
         return itemDto;
-    }
-
-    public static ItemDtoWithComment mapToDtoWithComments(Item item) {
-        return ItemDtoWithComment.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .comments(List.of())
-                .build();
     }
 
     public static Item mapToItem(ItemDto itemDto) {
@@ -40,6 +30,18 @@ public class ItemMap {
                 .name(itemCreate.getName())
                 .description(itemCreate.getDescription())
                 .available(itemCreate.getAvailable())
+                .build();
+    }
+
+    public static ItemDtoWithDate mapToDtoWithDate(Item item) {
+        return ItemDtoWithDate.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .lastBooking(null)
+                .nextBooking(null)
+                .available(item.getAvailable())
+                .comments(new ArrayList<>())
                 .build();
     }
 }
