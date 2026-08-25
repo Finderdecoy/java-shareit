@@ -14,7 +14,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.StatusException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepo;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
@@ -26,15 +26,19 @@ import java.util.List;
 @Slf4j
 public class BookingService {
     private final BookingRepo bookingRepo;
-    private final ItemRepo itemRepo;
+    private final ItemService itemService;
     private final UserService userService;
 
     public BookingDto createBooking(BookingDtoCreate dto, Long userBooking) {
-        Item item = itemRepo.findById(dto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        Item item = itemService.findById(dto.getItemId());
         User booker = userService.getUser(userBooking);
         Booking booking = BookingMapping.mapToBookingOnCreate(dto, item, booker);
-        if (booking.getItemBooking().getAvailable()) return BookingMapping.mapToDto(bookingRepo.save(booking));
-        throw new RuntimeException("Вещь не доступна в аренду");
+        boolean isBooking = bookingRepo.existsByItemBookingIdAndBookingStartDateLessThanAndBookingEndDateGreaterThan(
+                item.getId(),dto.getEnd(), dto.getStart());
+        if (booking.getItemBooking().getAvailable() && !isBooking) {
+            return BookingMapping.mapToDto(bookingRepo.save(booking));
+        }
+        throw new StatusException("Вещь не доступна в аренду");
     }
 
     public BookingDto changeStatus(Boolean status, Long bookingId, Long userId) {
@@ -44,11 +48,11 @@ public class BookingService {
             throw new StatusException("Только владелец вещи может изменить статус");
         }
         log.info("Изменение статуса {}, статус в запросе {}", booking, status);
-        if (booking.getStatus() == BookingStatus.WAITING) {
-            booking.setStatus(status ? BookingStatus.APPROVED : BookingStatus.REJECTED);
-            return BookingMapping.mapToDto(bookingRepo.save(booking));
+        if (booking.getStatus() != BookingStatus.WAITING) {
+            throw new StatusException("Стату уже изменнен");
         }
-        throw new StatusException("Стату уже изменнен");
+        booking.setStatus(status ? BookingStatus.APPROVED : BookingStatus.REJECTED);
+        return BookingMapping.mapToDto(bookingRepo.save(booking));
     }
 
     public BookingDto getBooking(Long bookingId, Long userId) {
@@ -62,7 +66,7 @@ public class BookingService {
     }
 
     public List<BookingDto> getListBooking(String state, Long userId) {
-        BookingState bState = BookingState.fromString(state);
+        BookingState bState = BookingState.fromString(state).orElseThrow(() -> new NotFoundException("Не верный статус"));
         User booker = userService.getUser(userId);
         List<Booking> bookings = switch (bState) {
             case ALL -> bookingRepo.findByBookerId(userId);
@@ -77,7 +81,7 @@ public class BookingService {
     }
 
     public List<BookingDto> getListOwner(String state, Long userId) {
-        BookingState bState = BookingState.fromString(state);
+        BookingState bState = BookingState.fromString(state).orElseThrow(() -> new NotFoundException("Не верный статус"));
         User owner = userService.getUser(userId);
         List<Booking> bookings = switch (bState) {
             case ALL -> bookingRepo.findByItemBookingOwnerId(userId);
@@ -92,7 +96,6 @@ public class BookingService {
     }
 
     private Booking getBookingById(Long bookingId) {
-        Booking booking = bookingRepo.findById(bookingId).orElseThrow(() -> new NotFoundException("Аренда с таким id не найдена"));
-        return booking;
+        return bookingRepo.findById(bookingId).orElseThrow(() -> new NotFoundException("Аренда с таким id не найдена"));
     }
 }

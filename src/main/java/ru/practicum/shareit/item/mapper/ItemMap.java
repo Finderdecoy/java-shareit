@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.itemDto.ItemDtoOnCreate;
 import ru.practicum.shareit.item.itemDto.ItemDtoWithDate;
 import ru.practicum.shareit.item.model.Item;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class ItemMap {
@@ -33,13 +34,25 @@ public class ItemMap {
                 .build();
     }
 
-    public static ItemDtoWithDate mapToDtoWithDate(Item item) {
+    public static ItemDtoWithDate mapToDtoWithOutDate(Item item) {
         return ItemDtoWithDate.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .lastBooking(null)
                 .nextBooking(null)
+                .available(item.getAvailable())
+                .comments(new ArrayList<>())
+                .build();
+    }
+
+    public static ItemDtoWithDate mapToDtoWithDate(Item item, LocalDateTime lastBooking, LocalDateTime nextBooking) {
+        return ItemDtoWithDate.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
                 .available(item.getAvailable())
                 .comments(new ArrayList<>())
                 .build();

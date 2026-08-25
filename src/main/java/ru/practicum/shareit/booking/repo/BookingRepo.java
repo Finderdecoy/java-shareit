@@ -24,6 +24,8 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
     //запросы владельца
     List<Booking> findByItemBookingOwnerId(Long userId);
 
+    List<Booking> findByItemBookingIdInAndStatus(List<Long> idItems, BookingStatus status);
+
     List<Booking> findByBookingStartDateBeforeAndBookingEndDateAfterAndItemBookingOwnerId(LocalDate nowStart, LocalDate nowEnd, Long owner);
 
     List<Booking> findByStatusAndItemBookingOwnerId(BookingStatus bookingStatus, Long owner);
@@ -33,7 +35,13 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
     List<Booking> findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDate now, Long owner);
 
     //запрос на проверку арендатора для добовления коментария
+    boolean existsByItemBookingIdAndBookerIdAndStatusAndBookingEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime now);
 
-    List<Booking> findByItemBookingIdAndBookerIdAndStatusAndBookingEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime now);
+    //запрос на проверку пересечения дат
+    boolean existsByItemBookingIdAndBookingStartDateLessThanAndBookingEndDateGreaterThan(
+            Long itemId,
+            LocalDateTime end,
+            LocalDateTime start
+    );
 
 }

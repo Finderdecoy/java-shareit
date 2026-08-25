@@ -3,9 +3,11 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repo.BookingRepo;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.StatusException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
 import ru.practicum.shareit.item.commentDto.CommentOutDto;
@@ -44,26 +46,65 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDtoWithDate getItem(Long idItem) {
+    public ItemDtoWithDate getItem(Long idItem, Long idUser) {
         log.info("Запрос вещи по id {}", idItem);
-        Item item = itemRepo.findById(idItem).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-        List<CommentOutDto> comments = commentRepo.findByItemId(idItem).stream().map(CommentMapper::mapToOutDto).toList();
-        if (item.getOwner().getId().equals(idItem))
-            return itemRepo.findItemWithDates(idItem).toBuilder().comments(comments).build();
-        return ItemMap.mapToDtoWithDate(item).toBuilder().comments(comments).build();
+        Item item = itemRepo.findById(idItem)
+                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+        if (!item.getOwner().getId().equals(idUser) && !item.getAvailable()) {
+            throw new StatusException("Вещь сейчас не доступна");
+        }
+        List<CommentOutDto> comments = commentRepo.findByItemId(idItem).stream()
+                .map(CommentMapper::mapToOutDto)
+                .toList();
+        if (item.getOwner().getId().equals(idUser)) {
+            List<Booking> bookings = bookingRepo.findByItemBookingIdInAndStatus(List.of(idItem),BookingStatus.APPROVED);
+            ItemDtoWithDate dto = getItemWithDate(item, bookings);
+            dto.setComments(comments);
+            return dto;
+        }
+        return ItemMap.mapToDtoWithOutDate(item).toBuilder().comments(comments).build();
+    }
+
+    private ItemDtoWithDate getItemWithDate(Item item, List<Booking> bookings) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lastBookingDate = bookings.stream()
+                .map(Booking::getBookingEndDate)
+                .filter(end -> end.isBefore(now))
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+        LocalDateTime nextBooking = bookings.stream()
+                .map(Booking::getBookingStartDate)
+                .filter(start -> start.isAfter(now))
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+        return ItemMap.mapToDtoWithDate(item, lastBookingDate, nextBooking);
     }
 
     @Override
     public Collection<ItemDtoWithDate> getItemList(Long idUser) {
         userRepository.findById(idUser).orElseThrow(() -> new NotFoundException("Вы не зарегистрированы."));
-        List<ItemDtoWithDate> items = itemRepo.findAllWithBookingDates(idUser);
-        log.info("Подготовил список с комментариями и датами - {}", items);
+        List<Item> items = itemRepo.findByOwnerId(idUser);
         if (items.isEmpty()) return List.of();
-        Collection<Long> itemsId = items.stream().map(ItemDtoWithDate::getId).toList();
-        Map<Long, List<Comment>> itemWithComments = commentRepo.findByItemIdIn(itemsId).stream().collect(Collectors.groupingBy(comment -> (long) comment.getItem().getId()));
-        items.forEach(i -> i.setComments(itemWithComments.getOrDefault(i.getId(), List.of()).stream().map(CommentMapper::mapToOutDto).toList()));
-        return items;
+        List<Long> itemIds = items.stream().map(Item::getId).toList();
+        Map<Long, List<Booking>> bookingsMap = bookingRepo.findByItemBookingIdInAndStatus(itemIds, BookingStatus.APPROVED)
+                .stream()
+                .collect(Collectors.groupingBy(b -> b.getItemBooking().getId()));
+        List<ItemDtoWithDate> itemsDto = items.stream()
+                .map(item -> {
+                    List<Booking> bookings = bookingsMap.getOrDefault(item.getId(), List.of());
+                    return getItemWithDate(item, bookings);
+                })
+                .toList();
+        Map<Long, List<Comment>> itemWithComments = commentRepo.findByItemIdIn(itemIds).stream()
+                .collect(Collectors.groupingBy(comment -> (long) comment.getItem().getId()));
+        itemsDto.forEach(i -> i.setComments(
+                itemWithComments.getOrDefault(i.getId(), List.of()).stream()
+                        .map(CommentMapper::mapToOutDto)
+                        .toList()
+        ));
+        return itemsDto;
     }
+
 
     @Override
     public ItemDto editItem(Long idUser, Long id, Item item) {
@@ -93,7 +134,8 @@ public class ItemServiceImpl implements ItemService {
     public CommentOutDto setComment(Long itemId, Long userId, CommentInDto commentDto) {
         Item item = itemRepo.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
         User user = checkUser(userId);
-        if (!bookingRepo.findByItemBookingIdAndBookerIdAndStatusAndBookingEndDateBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now()).isEmpty()) {
+        if (bookingRepo.existsByItemBookingIdAndBookerIdAndStatusAndBookingEndDateBefore(itemId, userId,
+                BookingStatus.APPROVED, LocalDateTime.now())) {
             Comment comment = commentRepo.save(CommentMapper.mapToModel(commentDto.getText(), item, user));
             return CommentMapper.mapToOutDto(comment);
         }
@@ -104,4 +146,8 @@ public class ItemServiceImpl implements ItemService {
         return userRepository.findById(idUser).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
+    @Override
+    public Item findById(Long itemId) {
+        return itemRepo.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+    }
 }

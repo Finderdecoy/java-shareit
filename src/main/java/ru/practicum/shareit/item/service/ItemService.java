@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import jakarta.validation.constraints.NotNull;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
 import ru.practicum.shareit.item.commentDto.CommentOutDto;
 import ru.practicum.shareit.item.itemDto.ItemDto;
@@ -12,7 +13,7 @@ public interface ItemService {
 
     ItemDto createItem(Long idUser, Item item);
 
-    ItemDtoWithDate getItem(Long idItem);
+    ItemDtoWithDate getItem(Long idItem, Long idUser);
 
     Collection<ItemDtoWithDate> getItemList(Long idUser);
 
@@ -21,4 +22,6 @@ public interface ItemService {
     Collection<ItemDto> searchAvailableItems(String searchQuery);
 
     CommentOutDto setComment(Long itemId, Long userId, CommentInDto dto);
+
+    Item findById(@NotNull Long itemId);
 }
