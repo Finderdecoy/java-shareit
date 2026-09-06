@@ -66,7 +66,7 @@ public class BookingService {
     }
 
     public List<BookingDto> getListBooking(String state, Long userId) {
-        BookingState bState = BookingState.fromString(state).orElseThrow(() -> new NotFoundException("Не верный статус"));
+        BookingState bState = BookingState.fromString(state).orElseThrow(() -> new StatusException("Не верный статус"));
         User booker = userService.getUser(userId);
         List<Booking> bookings = switch (bState) {
             case ALL -> bookingRepo.findByBookerId(userId);
