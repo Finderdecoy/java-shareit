@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(CommentMapper::mapToOutDto)
                 .toList();
         if (item.getOwner().getId().equals(idUser)) {
-            List<Booking> bookings = bookingRepo.findByItemBookingIdInAndStatus(List.of(idItem),BookingStatus.APPROVED);
+            List<Booking> bookings = bookingRepo.findByItemBookingIdInAndStatus(List.of(idItem), BookingStatus.APPROVED);
             ItemDtoWithDate dto = getItemWithDate(item, bookings);
             dto.setComments(comments);
             return dto;

@@ -34,7 +34,7 @@ public class BookingService {
         User booker = userService.getUser(userBooking);
         Booking booking = BookingMapping.mapToBookingOnCreate(dto, item, booker);
         boolean isBooking = bookingRepo.existsByItemBookingIdAndBookingStartDateLessThanAndBookingEndDateGreaterThan(
-                item.getId(),dto.getEnd(), dto.getStart());
+                item.getId(), dto.getEnd(), dto.getStart());
         if (booking.getItemBooking().getAvailable() && !isBooking) {
             return BookingMapping.mapToDto(bookingRepo.save(booking));
         }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestOnCreate;
 
@@ -31,7 +30,7 @@ public class ItemRequestController {
     }
 
     @GetMapping("{requestId}")
-    public ItemRequestDto getById(@PathVariable Long requestId){
+    public ItemRequestDto getById(@PathVariable Long requestId) {
         return service.getRequestById(requestId);
     }
 }
