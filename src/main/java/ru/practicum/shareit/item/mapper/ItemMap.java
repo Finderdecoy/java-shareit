@@ -31,6 +31,7 @@ public class ItemMap {
                 .name(itemCreate.getName())
                 .description(itemCreate.getDescription())
                 .available(itemCreate.getAvailable())
+                .requestId(itemCreate.getRequestId())
                 .build();
     }
 

@@ -14,6 +14,4 @@ public class UserDto {
     @NotNull
     @Email
     private String email;
-    private String login;
-    private LocalDate dateRegistration;
 }
