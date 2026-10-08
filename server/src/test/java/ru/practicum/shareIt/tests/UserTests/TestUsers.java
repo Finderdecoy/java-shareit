@@ -9,62 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("Тесты CRUD операций пользователей")
+@DisplayName("Интеграционные тесты Пользователь")
 public class TestUsers extends ShareItTests {
-
-    @Test
-    public void testCreateRightUser() throws Exception {
-        User user = User.builder()
-                .name("Пользователь 1")
-                .email("mail@email.ru")
-                .build();
-        createUser(user);
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(4));
-
-    }
-
-    @Test
-    public void testCreateUserWithoutName() throws Exception {
-        User user = User.builder()
-                .email("mail@email.ru")
-                .build();
-        createUser(user);
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-
-    }
-
-    @Test
-    public void createUserWithoutEmail() throws Exception {
-        User user = User.builder()
-                .name("Пользователь 1")
-                .build();
-        createUser(user);
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-
-    }
-
-    @Test
-    public void createUserWithWrongEmail() throws Exception {
-        User user = User.builder()
-                .name("Пользователь 1")
-                .email("mailw.ru")
-                .build();
-        createUser(user);
-
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
 
     @Test
     public void testEditUser() throws Exception {

@@ -10,7 +10,7 @@ import ru.practicum.shareit.item.itemDto.ItemDtoOnCreate;
 import ru.practicum.shareit.item.itemDto.ItemDtoWithDate;
 import ru.practicum.shareit.item.mapper.ItemMap;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.requestClient.ItemrequestClient;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,13 +20,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
 
-    public final ItemrequestClient itemrequestClient;
+    public final ItemService itemService;
 
     @PostMapping
     public ItemDto createItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
                               @Validated @RequestBody ItemDtoOnCreate itemDto) {
         Item item = ItemMap.mapToItemOnCreate(itemDto);
-        return itemrequestClient.createItem(idUser, item);
+        return itemService.createItem(idUser, item);
     }
 
     @PatchMapping("/{id}")
@@ -34,7 +34,7 @@ public class ItemController {
                             @PathVariable Long id,
                             @RequestBody ItemDto itemDto) {
         Item item = ItemMap.mapToItem(itemDto);
-        return itemrequestClient.editItem(idUser, id, item);
+        return itemService.editItem(idUser, id, item);
     }
 
     @GetMapping("/{idItem}")

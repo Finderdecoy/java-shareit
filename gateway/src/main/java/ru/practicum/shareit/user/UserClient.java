@@ -26,7 +26,6 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createUser(UserDto userDto) {
-        if (userDto.getName().isEmpty()) throw new ValidateException("Не правильно заполнено поле ИМЯ");
         return post("", userDto);
     }
 

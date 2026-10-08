@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +11,11 @@ import ru.practicum.shareit.item.Dto.ItemDto;
 import ru.practicum.shareit.item.Dto.ItemDtoOnCreate;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
 
-@Validated
+
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Slf4j
 public class ItemController {
 
     private final ItemClient itemClient;
@@ -21,6 +23,7 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
                                              @Validated @RequestBody ItemDtoOnCreate itemDto) {
+        log.info("Request to add item - {}", itemDto);
         return itemClient.createItem(idUser, itemDto);
     }
 
@@ -51,6 +54,7 @@ public class ItemController {
     public ResponseEntity<Object> setComment(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
                                              @PathVariable Long itemId,
                                              @RequestBody CommentInDto comment) {
+        log.info("Setting comment to item {} , by user {}", itemId, idUser);
         return itemClient.setComment(itemId, idUser, comment);
     }
 }

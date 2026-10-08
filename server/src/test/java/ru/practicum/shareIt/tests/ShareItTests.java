@@ -13,10 +13,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
 @SpringBootTest
@@ -28,12 +25,6 @@ public class ShareItTests {
 
     @Autowired
     protected ObjectMapper objectMapper;
-
-    protected void checkValidationError(ResultActions response, String expMessage) throws Exception {
-        response
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(expMessage));
-    }
 
     protected Long getIdFromObject(ResultActions response) throws Exception {
         return JsonPath.parse(response

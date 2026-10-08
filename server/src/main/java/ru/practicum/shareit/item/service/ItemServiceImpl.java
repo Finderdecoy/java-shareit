@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repo.BookingRepo;
+import ru.practicum.shareit.exception.NoRightAccess;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.StatusException;
-import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
 import ru.practicum.shareit.item.commentDto.CommentOutDto;
 import ru.practicum.shareit.item.itemDto.ItemDto;
@@ -120,7 +120,7 @@ public class ItemServiceImpl implements ItemService {
 
             return ItemMap.mapToDto(itemRepo.save(editingItem));
         }
-        throw new NotFoundException("Вы не являетесь владельцем данной вещи");
+        throw new NoRightAccess("Вы не являетесь владельцем данной вещи");
     }
 
     @Override
@@ -139,7 +139,7 @@ public class ItemServiceImpl implements ItemService {
             Comment comment = commentRepo.save(CommentMapper.mapToModel(commentDto.getText(), item, user));
             return CommentMapper.mapToOutDto(comment);
         }
-        throw new ValidateException("Вы не можете добавить комментарий, так как еще не арендовали эту вещь");
+        throw new NoRightAccess("Вы не можете добавить комментарий, так как еще не арендовали эту вещь");
     }
 
     private User checkUser(Long idUser) {

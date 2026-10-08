@@ -9,6 +9,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.Dto.ItemDto;
 import ru.practicum.shareit.item.Dto.ItemDtoOnCreate;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
@@ -59,7 +60,6 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> setComment(Long itemId, Long idUser, CommentInDto comment) {
-
-        return post("http://localhost:8080/" + itemId + "/comments", idUser, comment);
+        return post("/" + itemId + "/comment", idUser, comment);
     }
 }

@@ -1,8 +1,9 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ConfilictData;
+import ru.practicum.shareit.exception.ConflictData;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -14,13 +15,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
 
     public UserDto createUser(User user) {
         checkEmail(user);
-        return UserMapper.mapToUserDto(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        log.info("Saved user {}", savedUser);
+        return UserMapper.mapToUserDto(savedUser);
     }
 
     public List<UserDto> getUsers() {
@@ -44,7 +48,7 @@ public class UserService {
 
     private void checkEmail(User user) {
         if (userRepository.findAll().stream().anyMatch(u -> Objects.equals(u.getEmail(), user.getEmail())))
-            throw new ConfilictData("Этот eмейл уже используется");
+            throw new ConflictData("Этот eмейл уже используется");
     }
 
     public void deleteUser(Long id) {

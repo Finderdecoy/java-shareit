@@ -10,7 +10,7 @@ public class HandlerException {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse conflictData(ConfilictData e) {
+    public ErrorResponse conflictData(ConflictData e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -22,13 +22,11 @@ public class HandlerException {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validateExcept(ValidateException e) {
+    public ErrorResponse statusExcept(StatusException e) {
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse statusExcept(StatusException e) {
-        return new ErrorResponse(e.getMessage());
-    }
+    public ErrorResponse accessDenied(NoRightAccess e) { return new ErrorResponse(e.getMessage()); }
 }

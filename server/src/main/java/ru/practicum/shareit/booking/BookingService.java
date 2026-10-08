@@ -10,9 +10,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repo.BookingRepo;
+import ru.practicum.shareit.exception.ConflictData;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.StatusException;
-import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserService;
@@ -62,7 +62,7 @@ public class BookingService {
             log.info("Права доступа совпадают, вывод информации ...");
             return BookingMapping.mapToDto(booking);
         }
-        throw new ValidateException("Не правд доступа на просмотрет аренды");
+        throw new ConflictData("Не правд доступа на просмотрет аренды");
     }
 
     public List<BookingDto> getListBooking(String state, Long userId) {

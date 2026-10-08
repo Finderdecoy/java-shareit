@@ -36,6 +36,9 @@ public class BookingController {
     public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                            @RequestBody @Valid BookItemRequestDto requestDto) {
         log.info("Creating booking {}, userId={}", requestDto, userId);
+        if (requestDto.getEnd().isBefore(requestDto.getStart()) || requestDto.getEnd().equals(requestDto.getStart())) {
+            return ResponseEntity.badRequest().body("Дата окончания должна быть после даты начала");
+        }
         return bookingClient.bookItem(userId, requestDto);
     }
 
@@ -51,5 +54,13 @@ public class BookingController {
                                                @RequestParam(name = "approved", required = true) Boolean status,
                                                @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         return bookingClient.setStatus(status, userId, bookingId);
+    }
+
+    @GetMapping("/owner")
+    public ResponseEntity<Object> getListOwner(@RequestParam(name = "state", defaultValue = "all") String stateString,
+                                               @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+        BookingState state = BookingState.from(stateString)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateString));
+        return bookingClient.getListOwner(state, userId);
     }
 }

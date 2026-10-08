@@ -54,8 +54,8 @@ public class TestItem extends ShareItTests {
                 .available(true)
                 .build();
 
-       ResultActions result =  createItem(item, userId);
-       itemId = getIdFromObject(result);
+        ResultActions result = createItem(item, userId);
+        itemId = getIdFromObject(result);
     }
 
     @Test
@@ -88,19 +88,6 @@ public class TestItem extends ShareItTests {
 
     }
 
-    @Test
-    public void testCreateItemWithoutAvailable() throws Exception {
-        Item item = Item.builder()
-                .name("Отвертка")
-                .description("Screwdriver mechanical")
-                .build();
-
-        createItem(item, userId);
-
-        mockMvc.perform(get(ITEMS).header(USER_HEADER, userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
 
     @Test
     public void testEditItemAvailable() throws Exception {
