@@ -1,9 +1,9 @@
-package ru.practicum.shareIt.UserTests;
+package ru.practicum.shareit.UserTests;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import ru.practicum.shareIt.ShareItTests;
+import ru.practicum.shareit.ShareItTests;
 import ru.practicum.shareit.user.model.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
