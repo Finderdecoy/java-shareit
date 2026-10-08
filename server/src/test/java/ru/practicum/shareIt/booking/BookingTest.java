@@ -1,10 +1,10 @@
-package ru.practicum.shareIt.tests.booking;
+package ru.practicum.shareIt.booking;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-import ru.practicum.shareIt.tests.ShareItTests;
+import ru.practicum.shareIt.ShareItTests;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 
 import java.time.LocalDateTime;

@@ -1,9 +1,9 @@
-package ru.practicum.shareIt.tests.request;
+package ru.practicum.shareIt.request;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import ru.practicum.shareIt.tests.ShareItTests;
+import ru.practicum.shareIt.ShareItTests;
 import ru.practicum.shareit.request.dto.ItemRequestOnCreate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

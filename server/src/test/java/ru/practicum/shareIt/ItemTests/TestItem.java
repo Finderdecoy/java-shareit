@@ -1,4 +1,4 @@
-package ru.practicum.shareIt.tests.ItemTests;
+package ru.practicum.shareIt.ItemTests;
 
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-import ru.practicum.shareIt.tests.ShareItTests;
+import ru.practicum.shareIt.ShareItTests;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
 import ru.practicum.shareit.item.model.Item;
