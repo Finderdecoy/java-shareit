@@ -12,5 +12,5 @@ public class BookingDtoCreate {
     private Long itemId;
     private LocalDateTime start;
     private LocalDateTime end;
-    private BookingStatus status = BookingStatus.WAITING;
+    private BookingStatus status;
 }

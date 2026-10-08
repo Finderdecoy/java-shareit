@@ -36,7 +36,7 @@ public class TestItemsRest {
         String jsonItem = mapper.writeValueAsString(createItem);
         mock.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", String.valueOf(1l))
+                        .header("X-Sharer-User-Id", String.valueOf(1L))
                         .accept(MediaType.APPLICATION_JSON)
                         .content(jsonItem))
                 .andExpect(status().isBadRequest());
@@ -53,7 +53,7 @@ public class TestItemsRest {
         String jsonItem = mapper.writeValueAsString(createItem);
         mock.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", String.valueOf(1l))
+                        .header("X-Sharer-User-Id", String.valueOf(1L))
                         .accept(MediaType.APPLICATION_JSON)
                         .content(jsonItem))
                 .andExpect(status().isBadRequest());
@@ -70,7 +70,7 @@ public class TestItemsRest {
         String jsonItem = mapper.writeValueAsString(createItem);
         mock.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", String.valueOf(1l))
+                        .header("X-Sharer-User-Id", String.valueOf(1L))
                         .accept(MediaType.APPLICATION_JSON)
                         .content(jsonItem))
                 .andExpect(status().isBadRequest());
@@ -86,7 +86,7 @@ public class TestItemsRest {
         String jsonItem = mapper.writeValueAsString(createItem);
         mock.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", String.valueOf(1l))
+                        .header("X-Sharer-User-Id", String.valueOf(1L))
                         .accept(MediaType.APPLICATION_JSON)
                         .content(jsonItem))
                 .andExpect(status().isBadRequest());

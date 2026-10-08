@@ -3,6 +3,7 @@ package ru.practicum.shareIt.tests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +26,35 @@ public class ShareItTests {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    protected static User user1;
+    protected static User user2;
+    protected static User user3;
+    protected static Item item;
+
+    @BeforeAll
+    protected static void prepareData() {
+        user1 = User.builder()
+                .name("Jon")
+                .email("jon@ya.ru")
+                .build();
+
+        user2 = User.builder()
+                .name("Petr")
+                .email("petr@ya.ru")
+                .build();
+
+        user3 = User.builder()
+                .name("Gosha")
+                .email("gosha@mail.ru")
+                .build();
+
+        item = Item.builder()
+                .name("ScrewDriver")
+                .description("Some do with screws")
+                .available(true)
+                .build();
+    }
 
     protected Long getIdFromObject(ResultActions response) throws Exception {
         return JsonPath.parse(response

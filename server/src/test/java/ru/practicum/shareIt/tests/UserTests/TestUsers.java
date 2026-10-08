@@ -1,4 +1,5 @@
 package ru.practicum.shareIt.tests.UserTests;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -14,20 +15,15 @@ public class TestUsers extends ShareItTests {
 
     @Test
     public void testEditUser() throws Exception {
-        User user = User.builder()
-                .name("Monica")
-                .email("mail@mail.ru")
-                .build();
-        createUser(user);
-
+        long userId = getIdFromObject(createUser(user1));
         User editUser = User.builder()
-                .id(1L)
+                .id(userId)
                 .name("Update User")
                 .email("update@mail.ru")
                 .build();
 
 
-        mockMvc.perform(patch("/users/1")
+        mockMvc.perform(patch("/users/" + userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editUser)))
                 .andExpect(status().isOk())
@@ -58,17 +54,13 @@ public class TestUsers extends ShareItTests {
 
     @Test
     public void testDeleteUser() throws Exception {
-        User user = User.builder()
-                .name("Monica")
-                .email("mail@mail.ru")
-                .build();
-        createUser(user);
+        long idUser = getIdFromObject(createUser(user3));
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
 
-        mockMvc.perform(delete("/users/3"))
+        mockMvc.perform(delete("/users/" + idUser))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/users"))

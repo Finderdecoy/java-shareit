@@ -28,5 +28,7 @@ public class HandlerException {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse accessDenied(NoRightAccess e) { return new ErrorResponse(e.getMessage()); }
+    public ErrorResponse accessDenied(NoRightAccess e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }

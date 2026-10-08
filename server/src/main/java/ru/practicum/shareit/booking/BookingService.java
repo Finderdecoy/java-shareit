@@ -32,6 +32,7 @@ public class BookingService {
     public BookingDto createBooking(BookingDtoCreate dto, Long userBooking) {
         Item item = itemService.findById(dto.getItemId());
         User booker = userService.getUser(userBooking);
+        if (item.getOwner().equals(booker)) throw new ConflictData("Нельзя забронировать свою вещь");
         Booking booking = BookingMapping.mapToBookingOnCreate(dto, item, booker);
         boolean isBooking = bookingRepo.existsByItemBookingIdAndBookingStartDateLessThanAndBookingEndDateGreaterThan(
                 item.getId(), dto.getEnd(), dto.getStart());

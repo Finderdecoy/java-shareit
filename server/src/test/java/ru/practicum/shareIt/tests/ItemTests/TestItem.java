@@ -7,16 +7,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareIt.tests.ShareItTests;
+import ru.practicum.shareit.booking.dto.BookingDtoCreate;
+import ru.practicum.shareit.item.commentDto.CommentInDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import java.time.LocalDateTime;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
-@DisplayName("Тест CRUD операций для Item")
+@DisplayName("Интеграционные тесты Вещи")
 public class TestItem extends ShareItTests {
 
     public static final String ITEMS = "/items";
@@ -27,33 +29,11 @@ public class TestItem extends ShareItTests {
 
     @BeforeEach
     public void beforeEach() throws Exception {
-        User user = User.builder()
-                .name("Jason")
-                .email("jason@mail.ru")
-                .build();
-        ResultActions result = createUser(user);
-        System.out.println(result);
+        ResultActions result = createUser(user1);
         userId = getIdFromObject(result);
     }
 
-
-    @Test
-    public void shouldCreateItem() throws Exception {
-        createRightItem();
-
-        mockMvc.perform(get(ITEMS)
-                        .header(USER_HEADER, userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Отвертка"));
-    }
-
     private void createRightItem() throws Exception {
-        Item item = Item.builder()
-                .name("Отвертка")
-                .description("Электрическая зряжается от солца")
-                .available(true)
-                .build();
-
         ResultActions result = createItem(item, userId);
         itemId = getIdFromObject(result);
     }
@@ -71,21 +51,6 @@ public class TestItem extends ShareItTests {
                         .header(USER_HEADER, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    @Test
-    public void testCreateItemWithoutName() throws Exception {
-        Item item = Item.builder()
-                .description("Отвертка механическая")
-                .available(true)
-                .build();
-        createItem(item, userId);
-
-        mockMvc.perform(get(ITEMS)
-                        .header(USER_HEADER, userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-
     }
 
 
@@ -139,9 +104,9 @@ public class TestItem extends ShareItTests {
     public void testSearchAvailableItems() throws Exception {
         createRightItem();
 
-        mockMvc.perform(get(SEARCH).param("text", "отвертка"))
+        mockMvc.perform(get(SEARCH).param("text", "Screw"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Отвертка"));
+                .andExpect(jsonPath("$[0].name").value("ScrewDriver"));
     }
 
     @Test
@@ -164,5 +129,63 @@ public class TestItem extends ShareItTests {
         mockMvc.perform(get(SEARCH).param("text", "test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    public void testWriteCommentRentedItem() throws Exception {
+        createRightItem();
+        long bookerId = getIdFromObject(createUser(user2));
+
+        BookingDtoCreate bookingDto = BookingDtoCreate.builder()
+                .itemId(itemId)
+                .start(LocalDateTime.now().minusDays(2))
+                .end(LocalDateTime.now().minusDays(1))
+                .build();
+
+        ResultActions resultBooking = mockMvc.perform(post("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .content(objectMapper.writeValueAsString(bookingDto)))
+                .andExpect(status().isOk());
+
+        long bookingId = getIdFromObject(resultBooking);
+
+        mockMvc.perform(patch("/bookings/" + bookingId)
+                        .param("approved", "true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isOk());
+
+        CommentInDto commentDto = CommentInDto.builder()
+                .text("Дрель просто пушка! Отверстия в стене как по маслу.")
+                .build();
+
+        mockMvc.perform(post("/items/" + itemId + "/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.text").value("Дрель просто пушка! Отверстия в стене как по маслу."))
+                .andExpect(jsonPath("$.authorName").value("Petr"));
+    }
+
+    @Test
+    public void testWriteCommentNonRentedItem() throws Exception {
+        createRightItem();
+        long bookerId = getIdFromObject(createUser(user2));
+
+        CommentInDto commentDto = CommentInDto.builder()
+                .text("Даже не пользовался, но хочу написать гневный коммент!")
+                .build();
+
+        mockMvc.perform(post("/items/" + itemId + "/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", bookerId)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isBadRequest());
     }
 }
