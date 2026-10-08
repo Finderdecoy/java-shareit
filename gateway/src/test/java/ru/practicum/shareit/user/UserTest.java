@@ -3,9 +3,11 @@ package ru.practicum.shareit.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,8 +22,16 @@ public class UserTest {
     @Autowired
     private MockMvc mvc;
 
-    @MockBean
+    @Autowired
     private UserClient userClient;
+
+    @TestConfiguration
+    static class BookingTestConfig {
+        @Bean
+        public UserClient bookingClient() {
+            return Mockito.mock(UserClient.class);
+        }
+    }
 
     @Autowired
     private ObjectMapper mapper;

@@ -11,13 +11,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import ru.practicum.shareit.ShareItServer;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @Transactional
-@SpringBootTest
+@SpringBootTest(classes = ShareItServer.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class ShareItTests {
