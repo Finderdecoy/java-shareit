@@ -28,7 +28,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<Object> editUser(
             @PathVariable Long id,
-            @Validated @RequestBody UserDto userDto) {
+            @RequestBody UserDto userDto) {
         return userClient.editUser(id, userDto);
     }
 
