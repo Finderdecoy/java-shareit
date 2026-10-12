@@ -72,8 +72,8 @@ public class RequestItemTest extends ShareItTests {
         requestCreate(idUser);
 
         mockMvc.perform(get(URL_TEMPLATE + "/" + requestId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(requestId));
 

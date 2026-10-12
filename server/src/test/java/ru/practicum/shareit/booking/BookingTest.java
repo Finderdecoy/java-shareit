@@ -178,21 +178,21 @@ public class BookingTest extends ShareItTests {
     @Test
     public void testSearchBookingRightStatus() throws Exception {
         var dataMap = prepareBooking();
-        
+
         var result = mockMvc.perform(post(URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(USER_HEADER, dataMap.get(Data.BookerId))
-                .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(dataMap.get(Data.Booking))))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(dataMap.get(Data.Booking))))
                 .andExpect(status().isOk());
 
         long bookingId = getIdFromObject(result);
 
         mockMvc.perform(get(URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(USER_HEADER, dataMap.get(Data.BookerId))
-                .param("state","all")
-                .accept(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .param("state", "all")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").exists())
                 .andExpect(jsonPath("$[0].id").value(bookingId))
                 .andExpect(jsonPath("$[0].status").value("WAITING"));
@@ -215,7 +215,7 @@ public class BookingTest extends ShareItTests {
         mockMvc.perform(get(URL + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(USER_HEADER, dataMap.get(Data.OwnerId))
-                        .param("state","all")
+                        .param("state", "all")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").exists())
                 .andExpect(jsonPath("$[0].id").value(bookingId))

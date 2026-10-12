@@ -201,7 +201,7 @@ public class TestItem extends ShareItTests {
     }
 
     @Test
-    public void testGettingItemById() throws Exception{
+    public void testGettingItemById() throws Exception {
         createRightItem();
         mockMvc.perform(get(ITEMS + "/" + itemId)
                         .contentType(MediaType.APPLICATION_JSON)
