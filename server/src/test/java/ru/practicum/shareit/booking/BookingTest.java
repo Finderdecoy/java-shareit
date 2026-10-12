@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -8,6 +9,7 @@ import ru.practicum.shareit.ShareItTests;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Интеграционные тесты Бронирования")
 public class BookingTest extends ShareItTests {
     private static String URL = "/bookings";
+    private Map<Data, Object> dataMap;
 
     enum Data {
         OwnerId, BookerId, ItemId, Booking
@@ -40,9 +43,13 @@ public class BookingTest extends ShareItTests {
                 Data.Booking, booking);
     }
 
+    @BeforeEach
+    public void beforeEach() throws Exception {
+        dataMap = prepareBooking();
+    }
+
     @Test
     public void createBookingsValidData() throws Exception {
-        var dataMap = prepareBooking();
 
         mockMvc.perform(post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -54,7 +61,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void createBookingWhenDateIsBusy() throws Exception {
-        var dataMap = prepareBooking();
 
         BookingDtoCreate bookingTest = (BookingDtoCreate) dataMap.get(Data.Booking);
 
@@ -80,8 +86,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void selfBooking() throws Exception {
-        var dataMap = prepareBooking();
-
         mockMvc.perform(post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -92,8 +96,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void approveBookingByOwner() throws Exception {
-        var dataMap = prepareBooking();
-
         ResultActions result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -116,8 +118,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void getBookingByValidIdAndValidUser() throws Exception {
-        var dataMap = prepareBooking();
-
         var result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -137,8 +137,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void getBookingByIdInValidAndValidUser() throws Exception {
-        var dataMap = prepareBooking();
-
         var result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -157,8 +155,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void getBookingByIdValidAndInValidUser() throws Exception {
-        var dataMap = prepareBooking();
-
         var result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -177,8 +173,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void testSearchBookingRightStatus() throws Exception {
-        var dataMap = prepareBooking();
-
         var result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(USER_HEADER, dataMap.get(Data.BookerId))
@@ -201,8 +195,6 @@ public class BookingTest extends ShareItTests {
 
     @Test
     public void testSearchBookingRightStatusByOwner() throws Exception {
-        var dataMap = prepareBooking();
-
         var result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(USER_HEADER, dataMap.get(Data.BookerId))
@@ -221,6 +213,84 @@ public class BookingTest extends ShareItTests {
                 .andExpect(jsonPath("$[0].id").value(bookingId))
                 .andExpect(jsonPath("$[0].status").value("WAITING"));
 
+    }
+
+    @Test
+    public void testSearchBookingNotRightStatus() throws Exception {
+        testFindByStatusUser("Wrong").andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testSearchBookingREJECTEDStatus() throws Exception {
+        testFindByStatusUser("REJECTED")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    public void testSearchBookingWithOtherStatuses() throws Exception {
+        var result = mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long idBooking = getIdFromObject(result);
+
+        List<String> statuses = List.of("CURRENT", "PAST", "REJECTED");
+
+        for (String status : statuses) {
+            testFindByStatusUser(status)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
+        }
+
+        testFindByStatusUser("FUTURE")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").exists())
+                .andExpect(jsonPath("$[0].id").value(idBooking));
+    }
+
+    @Test
+    public void testSearchBookingWithOtherStatusesForOwner() throws Exception {
+        var result = mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long idBooking = getIdFromObject(result);
+
+        List<String> statuses = List.of("CURRENT", "PAST", "REJECTED");
+
+        for (String status : statuses) {
+            testFindByStatusOwner(status)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
+        }
+
+        testFindByStatusOwner("FUTURE")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").exists())
+                .andExpect(jsonPath("$[0].id").value(idBooking));
+    }
+
+    private ResultActions testFindByStatusUser(String status) throws Exception {
+        return mockMvc.perform(get(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(USER_HEADER, dataMap.get(Data.BookerId))
+                .param("state", status)
+                .accept(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions testFindByStatusOwner(String status) throws Exception {
+        return mockMvc.perform(get(URL + "/owner")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(USER_HEADER, dataMap.get(Data.OwnerId))
+                .param("state", status)
+                .accept(MediaType.APPLICATION_JSON));
     }
 }
 

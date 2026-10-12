@@ -5,7 +5,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,11 +12,11 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
     //запросы арендатора
     List<Booking> findByBookerId(Long userId);
 
-    List<Booking> findByBookingStartDateBeforeAndBookingEndDateAfterAndBooker(LocalDate dateStart, LocalDate dateEnd, User booker);
+    List<Booking> findByBookingStartDateBeforeAndBookingEndDateAfterAndBooker(LocalDateTime dateStart, LocalDateTime dateEnd, User booker);
 
-    List<Booking> findByBookingEndDateBeforeAndBooker(LocalDate dateNow, User booker);
+    List<Booking> findByBookingEndDateBeforeAndBooker(LocalDateTime dateNow, User booker);
 
-    List<Booking> findByBookingStartDateAfterAndBooker(LocalDate dateNow, User booker);
+    List<Booking> findByBookingStartDateAfterAndBooker(LocalDateTime dateNow, User booker);
 
     List<Booking> findByStatusAndBooker(BookingStatus bookingStatus, User booker);
 
@@ -26,13 +25,13 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
 
     List<Booking> findByItemBookingIdInAndStatus(List<Long> idItems, BookingStatus status);
 
-    List<Booking> findByBookingStartDateBeforeAndBookingEndDateAfterAndItemBookingOwnerId(LocalDate nowStart, LocalDate nowEnd, Long owner);
+    List<Booking> findByBookingStartDateBeforeAndBookingEndDateAfterAndItemBookingOwnerId(LocalDateTime nowStart, LocalDateTime nowEnd, Long owner);
 
     List<Booking> findByStatusAndItemBookingOwnerId(BookingStatus bookingStatus, Long owner);
 
-    List<Booking> findByBookingStartDateAfterAndItemBookingOwnerId(LocalDate now, Long owner);
+    List<Booking> findByBookingStartDateAfterAndItemBookingOwnerId(LocalDateTime now, Long owner);
 
-    List<Booking> findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDate now, Long owner);
+    List<Booking> findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDateTime now, Long owner);
 
     //запрос на проверку арендатора для добовления коментария
     boolean existsByItemBookingIdAndBookerIdAndStatusAndBookingEndDateBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime now);

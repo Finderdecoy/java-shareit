@@ -18,7 +18,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -72,9 +72,9 @@ public class BookingService {
         List<Booking> bookings = switch (bState) {
             case ALL -> bookingRepo.findByBookerId(userId);
             case CURRENT ->
-                    bookingRepo.findByBookingStartDateBeforeAndBookingEndDateAfterAndBooker(LocalDate.now(), LocalDate.now(), booker);
-            case PAST -> bookingRepo.findByBookingEndDateBeforeAndBooker(LocalDate.now(), booker);
-            case FUTURE -> bookingRepo.findByBookingStartDateAfterAndBooker(LocalDate.now(), booker);
+                    bookingRepo.findByBookingStartDateBeforeAndBookingEndDateAfterAndBooker(LocalDateTime.now(), LocalDateTime.now(), booker);
+            case PAST -> bookingRepo.findByBookingEndDateBeforeAndBooker(LocalDateTime.now(), booker);
+            case FUTURE -> bookingRepo.findByBookingStartDateAfterAndBooker(LocalDateTime.now(), booker);
             case WAITING -> bookingRepo.findByStatusAndBooker(BookingStatus.WAITING, booker);
             case REJECTED -> bookingRepo.findByStatusAndBooker(BookingStatus.REJECTED, booker);
         };
@@ -87,9 +87,9 @@ public class BookingService {
         List<Booking> bookings = switch (bState) {
             case ALL -> bookingRepo.findByItemBookingOwnerId(userId);
             case CURRENT ->
-                    bookingRepo.findByBookingStartDateBeforeAndBookingEndDateAfterAndItemBookingOwnerId(LocalDate.now(), LocalDate.now(), owner.getId());
-            case PAST -> bookingRepo.findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDate.now(), owner.getId());
-            case FUTURE -> bookingRepo.findByBookingStartDateAfterAndItemBookingOwnerId(LocalDate.now(), owner.getId());
+                    bookingRepo.findByBookingStartDateBeforeAndBookingEndDateAfterAndItemBookingOwnerId(LocalDateTime.now(), LocalDateTime.now(), owner.getId());
+            case PAST -> bookingRepo.findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDateTime.now(), owner.getId());
+            case FUTURE -> bookingRepo.findByBookingStartDateAfterAndItemBookingOwnerId(LocalDateTime.now(), owner.getId());
             case WAITING -> bookingRepo.findByStatusAndItemBookingOwnerId(BookingStatus.WAITING, owner.getId());
             case REJECTED -> bookingRepo.findByStatusAndItemBookingOwnerId(BookingStatus.REJECTED, owner.getId());
         };
