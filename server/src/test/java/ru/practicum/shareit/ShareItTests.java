@@ -32,6 +32,9 @@ public class ShareItTests {
     protected static User user3;
     protected static Item item;
 
+    public static final String USER_HEADER = "X-Sharer-User-Id";
+
+
     @BeforeAll
     protected static void prepareData() {
         user1 = User.builder()

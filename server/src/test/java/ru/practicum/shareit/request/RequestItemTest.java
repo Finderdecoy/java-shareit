@@ -13,6 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("Интеграционные тесты Запросов")
 public class RequestItemTest extends ShareItTests {
+    public static final String URL_TEMPLATE = "/requests";
+    protected long requestId;
 
     @Test
     public void createRequest() throws Exception {
@@ -25,12 +27,13 @@ public class RequestItemTest extends ShareItTests {
                 .description("Эта вещь должна крутить саморезы")
                 .build();
 
-        mockMvc.perform(post("/requests")
+        var result = mockMvc.perform(post(URL_TEMPLATE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", idUser)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+        requestId = getIdFromObject(result);
     }
 
     @Test
@@ -45,7 +48,7 @@ public class RequestItemTest extends ShareItTests {
     @Test
     public void getMyRequestWhenAreNone() throws Exception {
         long idUser = getIdFromObject(createUser(user1));
-        mockMvc.perform(get("/requests")
+        mockMvc.perform(get(URL_TEMPLATE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", idUser))
@@ -56,10 +59,23 @@ public class RequestItemTest extends ShareItTests {
     public void getMyRequestWhenAreHaveOne() throws Exception {
         long idUser = getIdFromObject(createUser(user1));
         requestCreate(idUser);
-        mockMvc.perform(get("/requests")
+        mockMvc.perform(get(URL_TEMPLATE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", idUser))
                 .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    public void testGettingRequestById() throws Exception {
+        long idUser = getIdFromObject(createUser(user1));
+        requestCreate(idUser);
+
+        mockMvc.perform(get(URL_TEMPLATE + "/" + requestId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(requestId));
+
     }
 }

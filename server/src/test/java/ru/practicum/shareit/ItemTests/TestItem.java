@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TestItem extends ShareItTests {
 
     public static final String ITEMS = "/items";
-    public static final String USER_HEADER = "X-Sharer-User-Id";
     public static final String SEARCH = "/items/search";
     private long userId;
     private long itemId;
@@ -187,5 +186,29 @@ public class TestItem extends ShareItTests {
                         .header("X-Sharer-User-Id", bookerId)
                         .content(objectMapper.writeValueAsString(commentDto)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testGettingItemListWithDate() throws Exception {
+        createRightItem();
+        mockMvc.perform(get(ITEMS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").exists())
+                .andExpect(jsonPath("$[0].id").value(itemId));
+    }
+
+    @Test
+    public void testGettingItemById() throws Exception{
+        createRightItem();
+        mockMvc.perform(get(ITEMS + "/" + itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").exists())
+                .andExpect(jsonPath("$.id").value(itemId));
     }
 }

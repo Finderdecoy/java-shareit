@@ -8,9 +8,9 @@ import ru.practicum.shareit.ShareItTests;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,13 +18,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BookingTest extends ShareItTests {
     private static String URL = "/bookings";
 
-    @Test
-    public void createBookingsValidData() throws Exception {
-        Long idUser = getIdFromObject(createUser(user1));
+    enum Data {
+        OwnerId, BookerId, ItemId, Booking
+    }
+
+    private Map<Data, Object> prepareBooking() throws Exception {
+        Long ownerId = getIdFromObject(createUser(user1));
         Long idUser2 = getIdFromObject(createUser(user2));
-        Long idItem = getIdFromObject(createItem(item, idUser));
+        Long idItem = getIdFromObject(createItem(item, ownerId));
         item.setId(idItem);
-        user2.setId(idUser2);
 
         BookingDtoCreate booking = BookingDtoCreate.builder()
                 .itemId(idItem)
@@ -32,100 +34,193 @@ public class BookingTest extends ShareItTests {
                 .end(LocalDateTime.now().plusDays(1))
                 .build();
 
+        return Map.of(Data.OwnerId, ownerId,
+                Data.BookerId, idUser2,
+                Data.ItemId, idItem,
+                Data.Booking, booking);
+    }
+
+    @Test
+    public void createBookingsValidData() throws Exception {
+        var dataMap = prepareBooking();
+
         mockMvc.perform(post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("X-Sharer-User-Id", idUser2)
-                .content(objectMapper.writeValueAsString(booking))
+                .header(USER_HEADER, dataMap.get(Data.BookerId))
+                .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking)))
         ).andExpect(status().isOk());
     }
 
     @Test
     public void createBookingWhenDateIsBusy() throws Exception {
-        Long idUser = getIdFromObject(createUser(user1));
-        Long idUser2 = getIdFromObject(createUser(user2));
-        Long idItem = getIdFromObject(createItem(item, idUser));
-        item.setId(idItem);
-        user2.setId(idUser2);
+        var dataMap = prepareBooking();
 
-        BookingDtoCreate booking = BookingDtoCreate.builder()
-                .itemId(idItem)
-                .start(LocalDateTime.now().plusHours(1))
-                .end(LocalDateTime.now().plusDays(1))
-                .build();
+        BookingDtoCreate bookingTest = (BookingDtoCreate) dataMap.get(Data.Booking);
 
         mockMvc.perform(post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("X-Sharer-User-Id", idUser2)
-                .content(objectMapper.writeValueAsString(booking))
+                .header(USER_HEADER, dataMap.get(Data.BookerId))
+                .content(objectMapper.writeValueAsString(bookingTest))
         );
 
         long idUser3 = getIdFromObject(createUser(user3));
 
-        booking.setStart(LocalDateTime.now().plusHours(12));
-        booking.setEnd(LocalDateTime.now().plusDays(1));
+        bookingTest.setStart(LocalDateTime.now().plusHours(12));
+        bookingTest.setEnd(LocalDateTime.now().plusDays(1));
 
         mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", idUser3)
-                        .content(objectMapper.writeValueAsString(booking)))
+                        .header(USER_HEADER, idUser3)
+                        .content(objectMapper.writeValueAsString(bookingTest)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void selfBooking() throws Exception {
-        Long idUser1 = getIdFromObject(createUser(user1));
-        Long idItem = getIdFromObject(createItem(item, idUser1));
-        item.setId(idItem);
-
-        BookingDtoCreate booking = BookingDtoCreate.builder()
-                .itemId(idItem)
-                .start(LocalDateTime.now().plusHours(1))
-                .end(LocalDateTime.now().plusDays(1))
-                .build();
+        var dataMap = prepareBooking();
 
         mockMvc.perform(post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("X-Sharer-User-Id", idUser1)
-                .content(objectMapper.writeValueAsString(booking))
+                .header(USER_HEADER, dataMap.get(Data.OwnerId))
+                .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking)))
         ).andExpect(status().is4xxClientError());
     }
 
     @Test
     public void approveBookingByOwner() throws Exception {
-        Long ownerId = getIdFromObject(createUser(user1));
-        Long itemId = getIdFromObject(createItem(item, ownerId));
+        var dataMap = prepareBooking();
 
-        Long bookerId = getIdFromObject(createUser(user2));
-
-        BookingDtoCreate bookingDto = BookingDtoCreate.builder()
-                .itemId(itemId)
-                .start(LocalDateTime.now().plusHours(1))
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
-
-        ResultActions result = mockMvc.perform(post("/bookings")
+        ResultActions result = mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", bookerId)
-                        .content(objectMapper.writeValueAsString(bookingDto)))
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("WAITING"));
 
         long bookingId = getIdFromObject(result);
 
-        mockMvc.perform(patch("/bookings/" + bookingId)
+        mockMvc.perform(patch(URL + "/" + bookingId)
                         .param("approved", "true")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", ownerId))
+                        .header(USER_HEADER, dataMap.get(Data.OwnerId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(bookingId))
                 .andExpect(jsonPath("$.status").value("APPROVED"));
     }
 
+    @Test
+    public void getBookingByValidIdAndValidUser() throws Exception {
+        var dataMap = prepareBooking();
+
+        var result = mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long bookingId = getIdFromObject(result);
+
+        mockMvc.perform(get(URL + "/" + bookingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(bookingId));
+    }
+
+    @Test
+    public void getBookingByIdInValidAndValidUser() throws Exception {
+        var dataMap = prepareBooking();
+
+        var result = mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long bookingId = getIdFromObject(result);
+
+        mockMvc.perform(get(URL + "/" + bookingId + 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getBookingByIdValidAndInValidUser() throws Exception {
+        var dataMap = prepareBooking();
+
+        var result = mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .content(objectMapper.writeValueAsString(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long bookingId = getIdFromObject(result);
+        long idUser = (long) dataMap.get(Data.BookerId);
+        mockMvc.perform(get(URL + "/" + bookingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, idUser + 1)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void testSearchBookingRightStatus() throws Exception {
+        var dataMap = prepareBooking();
+        
+        var result = mockMvc.perform(post(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(USER_HEADER, dataMap.get(Data.BookerId))
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long bookingId = getIdFromObject(result);
+
+        mockMvc.perform(get(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(USER_HEADER, dataMap.get(Data.BookerId))
+                .param("state","all")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").exists())
+                .andExpect(jsonPath("$[0].id").value(bookingId))
+                .andExpect(jsonPath("$[0].status").value("WAITING"));
+
+    }
+
+    @Test
+    public void testSearchBookingRightStatusByOwner() throws Exception {
+        var dataMap = prepareBooking();
+
+        var result = mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.BookerId))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(dataMap.get(Data.Booking))))
+                .andExpect(status().isOk());
+
+        long bookingId = getIdFromObject(result);
+
+        mockMvc.perform(get(URL + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(USER_HEADER, dataMap.get(Data.OwnerId))
+                        .param("state","all")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").exists())
+                .andExpect(jsonPath("$[0].id").value(bookingId))
+                .andExpect(jsonPath("$[0].status").value("WAITING"));
+
+    }
 }
 
