@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.commentDto.CommentInDto;
 import ru.practicum.shareit.item.commentDto.CommentOutDto;
@@ -23,14 +22,14 @@ public class ItemController {
     public final ItemService itemService;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
-                              @Validated @RequestBody ItemDtoOnCreate itemDto) {
+    public ItemDto createItem(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
+                              @RequestBody ItemDtoOnCreate itemDto) {
         Item item = ItemMap.mapToItemOnCreate(itemDto);
         return itemService.createItem(idUser, item);
     }
 
     @PatchMapping("/{id}")
-    public ItemDto editItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
+    public ItemDto editItem(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
                             @PathVariable Long id,
                             @RequestBody ItemDto itemDto) {
         Item item = ItemMap.mapToItem(itemDto);
@@ -38,13 +37,13 @@ public class ItemController {
     }
 
     @GetMapping("/{idItem}")
-    public ItemDtoWithDate getItemById(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
+    public ItemDtoWithDate getItemById(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
                                        @PathVariable Long idItem) {
         return itemService.getItem(idItem, idUser);
     }
 
     @GetMapping
-    public Collection<ItemDtoWithDate> getOwnerItems(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser) {
+    public Collection<ItemDtoWithDate> getOwnerItems(@RequestHeader(name = "X-Sharer-User-Id") Long idUser) {
         return itemService.getItemList(idUser);
     }
 
@@ -55,7 +54,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentOutDto setComment(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
+    public CommentOutDto setComment(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
                                     @PathVariable Long itemId,
                                     @RequestBody CommentInDto comment) {
         return itemService.setComment(itemId, idUser, comment);

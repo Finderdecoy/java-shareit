@@ -88,8 +88,10 @@ public class BookingService {
             case ALL -> bookingRepo.findByItemBookingOwnerId(userId);
             case CURRENT ->
                     bookingRepo.findByBookingStartDateBeforeAndBookingEndDateAfterAndItemBookingOwnerId(LocalDateTime.now(), LocalDateTime.now(), owner.getId());
-            case PAST -> bookingRepo.findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDateTime.now(), owner.getId());
-            case FUTURE -> bookingRepo.findByBookingStartDateAfterAndItemBookingOwnerId(LocalDateTime.now(), owner.getId());
+            case PAST ->
+                    bookingRepo.findByBookingEndDateBeforeAndItemBookingOwnerId(LocalDateTime.now(), owner.getId());
+            case FUTURE ->
+                    bookingRepo.findByBookingStartDateAfterAndItemBookingOwnerId(LocalDateTime.now(), owner.getId());
             case WAITING -> bookingRepo.findByStatusAndItemBookingOwnerId(BookingStatus.WAITING, owner.getId());
             case REJECTED -> bookingRepo.findByStatusAndItemBookingOwnerId(BookingStatus.REJECTED, owner.getId());
         };

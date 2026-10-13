@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class UserController {
     public final UserClient userClient;
 
@@ -21,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@Validated @RequestBody UserDto userDto) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody UserDto userDto) {
         return userClient.createUser(userDto);
     }
 

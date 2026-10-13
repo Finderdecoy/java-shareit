@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -16,32 +17,33 @@ import ru.practicum.shareit.item.commentDto.CommentInDto;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ItemController {
 
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> createItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
-                                             @Validated @RequestBody ItemDtoOnCreate itemDto) {
+    public ResponseEntity<Object> createItem(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
+                                             @Valid @RequestBody ItemDtoOnCreate itemDto) {
         log.info("Request to add item - {}", itemDto);
         return itemClient.createItem(idUser, itemDto);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> editItem(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
+    public ResponseEntity<Object> editItem(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
                                            @NotNull @Positive @PathVariable Long id,
-                                           @Validated @RequestBody ItemDto itemDto) {
+                                           @Valid @RequestBody ItemDto itemDto) {
         return itemClient.editItem(idUser, id, itemDto);
     }
 
     @GetMapping("/{idItem}")
-    public ResponseEntity<Object> getItemById(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
+    public ResponseEntity<Object> getItemById(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
                                               @PathVariable Long idItem) {
         return itemClient.getItem(idItem, idUser);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getOwnerItems(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser) {
+    public ResponseEntity<Object> getOwnerItems(@RequestHeader(name = "X-Sharer-User-Id") Long idUser) {
         return itemClient.getItemListOwner(idUser);
     }
 
@@ -51,7 +53,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> setComment(@RequestHeader(name = "X-Sharer-User-Id", required = true) Long idUser,
+    public ResponseEntity<Object> setComment(@RequestHeader(name = "X-Sharer-User-Id") Long idUser,
                                              @PathVariable Long itemId,
                                              @RequestBody CommentInDto comment) {
         log.info("Setting comment to item {} , by user {}", itemId, idUser);

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -22,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@Validated @RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         User user = UserMapper.mapToUser(userDto);
         return userService.createUser(user);
     }
